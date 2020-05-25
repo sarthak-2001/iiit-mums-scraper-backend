@@ -1,11 +1,11 @@
 {
-  "name": "IIITSuite",
+  "name": "iiitsuit",
   "version": "1.0.0",
-  "description": "",
+  "description": "1. `npm install`\r 2. `npm run dev`",
   "main": "app.js",
   "scripts": {
     "start": "node app",
-    "dev":"nodemon app"
+    "dev": "nodemon app"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +16,14 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "set-cookie-parser": "^2.4.5"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarthak-2001/mums-scraper-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sarthak-2001/mums-scraper-backend/issues"
+  },
+  "homepage": "https://github.com/sarthak-2001/mums-scraper-backend#readme"
 }

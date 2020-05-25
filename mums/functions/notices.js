@@ -17,7 +17,7 @@ let noitces = async function (uid, pwd) {
   };
 
   let data = { Notices: [] };
-  let res = await rp.post(option);
+  let res = await rp.get(option);
   const $ = cheerio.load(res.body);
 
   $("tbody")
