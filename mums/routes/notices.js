@@ -11,7 +11,7 @@ router.post("/notices",async (req,res)=>{
     res.status(500).send('ERROR');
   }
   else{
-    res.status(200).send(notices);
+    res.status(200).json(notices);
   }
 })
 
