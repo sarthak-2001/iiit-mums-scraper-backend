@@ -18,7 +18,9 @@
     "request-promise": "^4.2.5",
     "set-cookie-parser": "^2.4.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript": "^3.9.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sarthak-2001/mums-scraper-backend.git"
