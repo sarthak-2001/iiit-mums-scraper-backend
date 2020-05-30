@@ -6,6 +6,7 @@ const studentImageRouter = require("./mums/routes/stuImage");
 const facultyRouter = require("./mums/routes/facSearch");
 const facListRouter = require("./mums/routes/facList");
 const facultyImageRouter = require("./mums/routes/facImage");
+const intraRouter = require("./mums/routes/intraNotices")
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(studentImageRouter);
 app.use(facultyRouter);
 app.use(facListRouter);
 app.use(facultyImageRouter);
+app.use(intraRouter);
 
 const PORT = process.env.PORT || 3001;
 
