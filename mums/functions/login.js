@@ -31,4 +31,3 @@ let login = async function (uid, pwd) {
 };
 
 module.exports = { login };
-

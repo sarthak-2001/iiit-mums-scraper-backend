@@ -55,7 +55,7 @@ let noticedataScraper = async function (cookie, id) {
       content,
       attachmentLink,
     };
-    
+
     return data;
   } catch (e) {
     console.log(e);
