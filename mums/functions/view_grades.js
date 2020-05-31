@@ -3,13 +3,13 @@ const { login } = require("./login");
 const cheerio = require("cheerio");
 const db = require("../firebase/firebaseInit");
 
-let grade_scraper = async function (uid, pwd) {
+let grade_scraper = async function (uid, pwd,coid) {
   let user = await login(uid, pwd);
   let cookie = user.cookie;
 
   let option = {
     url:
-      "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docDet1.php?coid=3634",
+      "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docDet1.php?coid="+coid,
     simple: false,
     resolveWithFullResponse: true,
     headers: {
@@ -19,7 +19,7 @@ let grade_scraper = async function (uid, pwd) {
     },
   };
   let data = { Grades: [] };
-  rp.get(option)
+  await rp.get(option)
     .then((res1) => {
       let option2 = {
         url:
@@ -29,12 +29,12 @@ let grade_scraper = async function (uid, pwd) {
         headers: {
           Cookie: cookie,
           Referer:
-            "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docDet1.php?coid=3634",
+            "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docDet1.php?coid="+coid,
         },
       };
       rp.get(option2)
         .then((res) => {
-            //console.log(res.body)
+            console.log(res.body)
             const $ = cheerio.load(res.body);
             const student_id = $('p').children()
                 .eq(2)
@@ -82,5 +82,5 @@ let grade_scraper = async function (uid, pwd) {
     .catch((e) => console.log(e));
 };
 
-//scraper("b418045", "kitu@2001");
+//grade_scraper("b418045", "kitu@2001",3634);
 module.exports = grade_scraper;
