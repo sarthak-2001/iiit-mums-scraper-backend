@@ -34,7 +34,7 @@ let grade_scraper = async function (uid, pwd,coid) {
       };
       rp.get(option2)
         .then((res) => {
-            console.log(res.body)
+            //console.log(res.body)
             const $ = cheerio.load(res.body);
             const student_id = $('p').children()
                 .eq(2)
