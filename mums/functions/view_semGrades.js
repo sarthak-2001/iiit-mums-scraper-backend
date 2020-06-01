@@ -60,4 +60,3 @@ let sem_grades = async function (uid, pwd,tid) {
 }
 
 module.exports = sem_grades ;
-//sem_grades("b418018","barbie17*",3)
