@@ -1,36 +1,45 @@
 const rp = require("request-promise");
 const { login } = require("./login");
-const cheerio = require("cheerio");
-const db = require("../firebase/firebaseInit");
 
-let noticedataScraper = async function (cookie, id) {
+const cheerio = require("cheerio");
+
+let intraDataScraper = async function (cookie, id) {
+  // let user = await login(uid, pwd);
+  // let cookie = user.cookie;
   try {
     let mainUrl =
-      "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docDet.php?docid=" + id;
+      "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docDet.php?docid=" +
+      id;
     let option = {
       url: mainUrl,
       simple: false,
       resolveWithFullResponse: true,
       headers: {
         Cookie: cookie,
-        Referer: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
+        Referer:
+          "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
       },
     };
 
     let res = await rp.get(option);
     const $ = cheerio.load(res.body);
 
-    let content = $("div.well")
-      .text()
-      .replace(/^\s+|\s+$/g, "");
-    let preAttachment = $("a.btn-danger").attr("href");
+    // console.log(res.body);
+
+    let content = $("div.well").html();
+    // console.log(content);
+
+    let preAttachment = $("a").next().next().next().next().next().attr("href");
+    // console.log(preAttachment);
+
     let isAttach = false;
     let url;
     if (preAttachment == undefined) {
       isAttach = false;
     } else {
       isAttach = true;
-      url = `https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/${preAttachment}`;
+
+      url = `https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/${preAttachment}`;
     }
     let attachmentLink = "";
     if (isAttach == true) {
@@ -55,10 +64,12 @@ let noticedataScraper = async function (cookie, id) {
       content,
       attachmentLink,
     };
+    // console.log(data);
 
     return data;
   } catch (e) {
     console.log(e);
   }
 };
-module.exports = { noticedataScraper };
+
+module.exports = { intraDataScraper };

@@ -1,22 +1,23 @@
 const rp = require("request-promise");
 const { login } = require("./login");
-const { noticedataScraper } = require("./noticedata");
 const cheerio = require("cheerio");
 const db = require("../firebase/firebaseInit");
+const { intraDataScraper } = require("./intradata");
 
-let noticeDBcreator = async function (uid, pwd) {
-  let noticeRef = db.collection("notices");
+let intraDBCreator = async function (uid, pwd) {
+  let intraRef = db.collection("intranet");
 
   let user = await login(uid, pwd);
   let cookie = user.cookie;
 
   let option = {
-    url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
+    url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
     simple: false,
     resolveWithFullResponse: true,
     headers: {
       Cookie: cookie,
-      Referer: "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/?w=766&h=749",
+      Referer:
+        "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php?role=Common",
     },
   };
 
@@ -26,45 +27,49 @@ let noticeDBcreator = async function (uid, pwd) {
   $("tbody")
     .children()
     .each((i, ele) => {
-      console.log(`${i}\n`);
+      // if(i==2)
+      //   {
+      //     return false;
+      //   }
+      // console.log(`${i}\n`);
 
       const date = $(ele)
+        .find("td")
+        .eq(0)
+        .text()
+        .replace(/^\s+|\s+$/g, "");
+
+      const title = $(ele)
         .find("td")
         .eq(1)
         .text()
         .replace(/^\s+|\s+$/g, "");
-      const full_heading = $(ele)
+
+      const by = $(ele)
         .find("td")
         .eq(2)
         .text()
         .replace(/^\s+|\s+$/g, "");
-      const replaced_full_heading = full_heading
-        .split("--")[1]
-        .replace("Attention:", "---")
-        .replace("Posted by:", "---")
-        .toString();
 
-      const title = full_heading.split("--")[0].replace(/^\s+|\s+$/g, "");
-      const attention = replaced_full_heading
-        .split("---")[1]
-        .replace(/^\s+|\s+$/g, "");
-      const posted_by = replaced_full_heading
-        .split("---")[2]
-        .replace(/^\s+|\s+$/g, "");
       const id_link = $(ele).find("a").attr("href");
-      const doc_id = $(ele).find("a").attr("href").slice(17);
 
-      noticedataScraper(cookie, doc_id)
+      const doc_id = $(ele).find("a").attr("href").slice(17);
+      console.log(doc_id);
+      
+
+      intraDataScraper(cookie, doc_id)
         .then((contents) => {
           const content = contents.content;
           const attachment = contents.attachmentLink;
+          // console.log(content);
+          // console.log(attachment);
 
-          noticeRef.doc(doc_id).set({
+          intraRef.doc(doc_id).set({
             date: date,
             title: title,
-            attention: attention,
-            posted_by: posted_by,
-            doc_id: doc_id,
+            by: by,
+
+            doc_id: parseInt(doc_id),
             id_link: id_link,
             content: content,
             attachment: attachment,
@@ -76,23 +81,26 @@ let noticeDBcreator = async function (uid, pwd) {
     });
 };
 
-let noticeUpdater = async function (uid, pwd) {
+let intraUpdater = async function (uid, pwd) {
   try {
-    let noticeRef = db.collection("notices");
-    noticesFromDB = await noticeRef.orderBy("doc_id", "desc").limit(1).get();
+    let intraRef = db.collection("intranet");
+    intraFromDB = await intraRef.orderBy("doc_id", "desc").limit(1).get();
     let lastNoticeID;
-    for (noticeDB of noticesFromDB.docs) lastNoticeID = noticeDB.id;
+    for (intraNoticeFromDB of intraFromDB.docs) lastNoticeID = intraNoticeFromDB.id;
 
+    console.log(lastNoticeID);
+    
     let user = await login(uid, pwd);
     let cookie = user.cookie;
 
     let option = {
-      url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
+      url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
       simple: false,
       resolveWithFullResponse: true,
       headers: {
         Cookie: cookie,
-        Referer: "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/?w=766&h=749",
+        Referer:
+          "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php?role=Common",
       },
     };
 
@@ -106,28 +114,24 @@ let noticeUpdater = async function (uid, pwd) {
 
         const date = $(ele)
           .find("td")
+          .eq(0)
+          .text()
+          .replace(/^\s+|\s+$/g, "");
+
+        const title = $(ele)
+          .find("td")
           .eq(1)
           .text()
           .replace(/^\s+|\s+$/g, "");
-        const full_heading = $(ele)
+
+        const by = $(ele)
           .find("td")
           .eq(2)
           .text()
           .replace(/^\s+|\s+$/g, "");
-        const replaced_full_heading = full_heading
-          .split("--")[1]
-          .replace("Attention:", "---")
-          .replace("Posted by:", "---")
-          .toString();
 
-        const title = full_heading.split("--")[0].replace(/^\s+|\s+$/g, "");
-        const attention = replaced_full_heading
-          .split("---")[1]
-          .replace(/^\s+|\s+$/g, "");
-        const posted_by = replaced_full_heading
-          .split("---")[2]
-          .replace(/^\s+|\s+$/g, "");
         const id_link = $(ele).find("a").attr("href");
+
         const doc_id = $(ele).find("a").attr("href").slice(17);
         if (doc_id <= lastNoticeID) {
           console.log("done");
@@ -135,16 +139,16 @@ let noticeUpdater = async function (uid, pwd) {
           return false;
         }
 
-        noticedataScraper(cookie, doc_id)
+        intraDataScraper(cookie, doc_id)
           .then((contents) => {
             const content = contents.content;
             const attachment = contents.attachmentLink;
 
-            noticeRef.doc(doc_id).set({
+            intraRef.doc(doc_id).set({
               date: date,
               title: title,
-              attention: attention,
-              posted_by: posted_by,
+              by: by,
+
               doc_id: doc_id,
               id_link: id_link,
               content: content,
@@ -162,4 +166,4 @@ let noticeUpdater = async function (uid, pwd) {
   }
 };
 
-module.exports = { noticeUpdater };
+module.exports={intraUpdater}
