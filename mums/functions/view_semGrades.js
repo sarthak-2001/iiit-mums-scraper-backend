@@ -54,9 +54,10 @@ let sem_grades = async function (uid, pwd,tid) {
         sgpa,
         cgpa
     })
-    
+    //return data ;
     console.log(data)
         
 }
 
-sem_grades("b418018","barbie17*",3)
+module.exports = sem_grades ;
+//sem_grades("b418018","barbie17*",3)
