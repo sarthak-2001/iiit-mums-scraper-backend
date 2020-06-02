@@ -52,19 +52,25 @@ let attendance_scraper = async function (cookie, coid , cb ) {
                 if(att === "PRESENT"){
                   days_present++;
                 }
-                const actdate = $(ele)
-                  .find("td")
-                  .eq(1)
-                  .text()
-                  .trim()
                 const schdate = $(ele)
                   .find("td")
                   .eq(2)
                   .text()
                   .trim()
+                if(schdate !== ''){
                 if(schdate > last_updated){
                   last_updated = schdate;
                 }
+               }else{
+                const actdate = $(ele)
+                .find("td")
+                .eq(1)
+                .text()
+                .trim()
+                if(actdate > last_updated){
+                  last_updated = actdate;
+                }
+               }
                 total_days++;
               })
               data = { 

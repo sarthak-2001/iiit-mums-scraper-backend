@@ -1,7 +1,7 @@
 const rp = require("request-promise");
 const { login } = require("./login");
 const cheerio = require("cheerio");
-const { individual_attendance } = require("./onesub_attendance");
+const { attendance_scraper } = require("./onesub_attendance");
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -44,7 +44,7 @@ let attendanceScraper = async function (uid, pwd ) {
   
 
   for (let index = 0; index < course_info.length; index++) {
-    individual_attendance(cookie, course_info[index].coid, (result) => {
+    attendance_scraper(cookie, course_info[index].coid, (result) => {
       console.log(result);
       data.Attendance.push({
         subject: course_info[index].subject,
