@@ -5,7 +5,7 @@ const cheerio = require("cheerio");
 let grade_scraper = async function (cookie, coid, cb) {
   // let user = await login(uid, pwd);
   // let cookie = user.cookie;
-  console.log(coid);
+  //console.log(coid);
 
   let data;
   let option = {
@@ -50,7 +50,7 @@ let grade_scraper = async function (cookie, coid, cb) {
 
           const $ = cheerio.load(res.body);
           let c = $("div.col-xs-4").text();
-          console.log(`----- ${c}`);
+          //console.log(`----- ${c}`);
           if (c.length <= 45) {
             grade_points = $("p").children().eq(11).text();
             grade = $("p").children().eq(14).text();
@@ -82,7 +82,7 @@ let grade_scraper = async function (cookie, coid, cb) {
             endsem,
             grade_points,
             grade,
-          };
+          }; 
           // console.log(data);
           cb(data);
         })

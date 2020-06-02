@@ -1,42 +1,64 @@
 const rp = require("request-promise");
 const { login } = require("./login");
 const cheerio = require("cheerio");
-const db = require("../firebase/firebaseInit");
+const { individual_attendance } = require("./onesub_attendance");
 
-let attendance_scraper = async function (uid, pwd,coid) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+let attendanceScraper = async function (uid, pwd ) {
   let user = await login(uid, pwd);
   let cookie = user.cookie;
 
   let option = {
     url:
-      "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docDet1.php?coid="+coid,
+      "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docList1.php",
     simple: false,
     resolveWithFullResponse: true,
     headers: {
       Cookie: cookie,
-      Referer:
-        "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docList1.php",
+      Referer: "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php",
     },
   };
-  let data = { Attendance: [] };
-    rp.get(option)
-    .then((res1) => {
-      let option2 = {
-        url:
-          "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/coClassSch/docList1.php",
-        simple: false,
-        resolveWithFullResponse: true,
-        headers: {
-          Cookie: cookie,
-          Referer:
-            "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/myCourses/docDet1.php?coid="+coid,
-        },
-      };
-      rp.get(option2)
-        .then((res) => {
-            console.log(res.body)
-        })
-    })
-}
 
-attendance_scraper("b418018","barbie17*",3634);
+  let res = await rp.get(option);
+  let data = { Attendance: [] };
+
+  let $ = cheerio.load(res.body);
+  let course_info = [];
+  $("tbody")
+    .children()
+    .each((i, ele) => {
+      // console.log(i);
+      let subject = $(ele).find("td").eq(1).text().toString().trim();
+      let coid = $(ele).find("a").attr("href").slice(17);
+      course_info.push({
+          subject,
+          coid,
+        });
+    });
+    
+
+  // console.log(course_info);
+  
+
+  for (let index = 0; index < course_info.length; index++) {
+    individual_attendance(cookie, course_info[index].coid, (result) => {
+      console.log(result);
+      data.Attendance.push({
+        subject: course_info[index].subject,
+        coid: course_info[index].coid,
+        total_days:result.total_days,                        
+        days_present: result.days_present,
+        last_updated: result.last_updated,
+      });
+    })
+    await sleep(1500);
+    // console.log(data);
+  }
+  console.log(data);
+  
+};
+attendanceScraper("b418018", "barbie17*");
+

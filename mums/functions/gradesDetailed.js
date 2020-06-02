@@ -75,5 +75,5 @@ let gradeScraper = async function (uid, pwd, semesterCur) {
   console.log(data);
   
 };
-// gradeScraper("b418045", "kitu@2001", "1");
+ gradeScraper("b418045", "kitu@2001", "1");
 
