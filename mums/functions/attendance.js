@@ -7,7 +7,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-let attendanceScraper = async function (uid, pwd ) {
+let attendanceScraper = async function (uid, pwd , semcurr ) {
   let user = await login(uid, pwd);
   let cookie = user.cookie;
 
@@ -27,17 +27,13 @@ let attendanceScraper = async function (uid, pwd ) {
 
   let $ = cheerio.load(res.body);
   let course_info = [];
-  let current_sem = 0;
   $("tbody")
     .children()
     .each((i, ele) => {
       // console.log(i);
+      let sem = $(ele).find("td").eq(0).text().toString().trim();
       let subject = $(ele).find("td").eq(1).text().toString().trim();
       let coid = $(ele).find("a").attr("href").slice(17);
-      let sem = $(ele).find("td").eq(0).text().toString().trim();
-      if(sem > current_sem){
-        current_sem = sem ;
-      }
       course_info.push({
           subject,
           coid,
@@ -50,7 +46,7 @@ let attendanceScraper = async function (uid, pwd ) {
   
 
   for (let index = 0; index < course_info.length; index++) {
-    if(course_info[index].sem == current_sem){ 
+    if(course_info[index].sem == semcurr){ 
     attendance_scraper(cookie, course_info[index].coid, (result) => {
       //console.log(result);
       data.Attendance.push({
@@ -62,14 +58,14 @@ let attendanceScraper = async function (uid, pwd ) {
       });
     })
     await sleep(1500);
-    // console.log(data);
-   }
+    }
   }
+  //console.log(data); 
   return data;
   
 };
 
 
 module.exports = { attendanceScraper };
-//attendanceScraper("b418018", "barbie17*");
+//attendanceScraper("b418018", "barbie17*",4);
 
