@@ -65,8 +65,11 @@ let attendanceScraper = async function (uid, pwd ) {
     // console.log(data);
    }
   }
-  console.log(data);
+  return data;
   
 };
-attendanceScraper("b418018", "barbie17*");
+
+
+module.exports = { attendanceScraper };
+//attendanceScraper("b418018", "barbie17*");
 
