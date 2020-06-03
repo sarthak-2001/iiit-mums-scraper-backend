@@ -1,11 +1,11 @@
 const express = require("express");
-const { grade_scraper } = require("../functions/view_grades");
+const { gradeScraper } = require("../functions/gradesDetailed");
 
 const router = new express.Router();
 
-router.post("/grades/:coid", async (req, res) => {
-  let coid = req.params.coid;
-  let grades = await grade_scraper(req.body.uid,req.body.pwd,coid)
+router.post("/grades/:sem", async (req, res) => {
+  let sem = req.params.sem;
+  let grades = await gradeScraper(req.body.uid,req.body.pwd,sem)
   
 
   if (!grades) {

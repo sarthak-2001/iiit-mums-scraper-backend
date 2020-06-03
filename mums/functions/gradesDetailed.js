@@ -72,8 +72,11 @@ let gradeScraper = async function (uid, pwd, semesterCur) {
     await sleep(1500);
     // console.log(data);
   }
-  console.log(data);
+  return data;
   
 };
- gradeScraper("b418045", "kitu@2001", "1");
+
+
+module.exports = { gradeScraper };
+//gradeScraper("b418045", "kitu@2001", "1");
 

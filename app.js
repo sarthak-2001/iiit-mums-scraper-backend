@@ -1,7 +1,7 @@
 const express = require("express");
 const loginRouter = require("./mums/routes/login");
 const noticeRouter = require("./mums/routes/notices");
-//const gradesRouter = require("./mums/routes/view_grades");
+const gradesRouter = require("./mums/routes/view_grades");
 const studentRouter = require("./mums/routes/stuSearch");
 const studentImageRouter = require("./mums/routes/stuImage");
 const facultyRouter = require("./mums/routes/facSearch");
@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use(loginRouter);
 app.use(noticeRouter);
-//app.use(gradesRouter);
+app.use(gradesRouter);
 app.use(studentRouter);
 app.use(studentImageRouter);
 app.use(facultyRouter);
