@@ -2,10 +2,14 @@ const rp = require("request-promise");
 const { login } = require("./login");
 const cheerio = require("cheerio");
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 let grade_scraper = async function (cookie, coid, cb) {
   // let user = await login(uid, pwd);
   // let cookie = user.cookie;
-  //console.log(coid);
+  console.log(coid);
 
   let data;
   let option = {
@@ -21,8 +25,8 @@ let grade_scraper = async function (cookie, coid, cb) {
     },
   };
 
-  rp.get(option)
-    .then((_) => {
+  await rp.get(option)
+    .then(async (_) => {
       let option2 = {
         url:
           "https://hib.iiit-bh.ac.in/m-ums-2.0/app.acadstu/coVwGrade/docDet1.php",
@@ -35,10 +39,12 @@ let grade_scraper = async function (cookie, coid, cb) {
             coid,
         },
       };
-      rp.get(option2)
+      await rp.get(option2)
         .then((res) => {
+          console.log(`----- ${coid}`);
+          
           // console.log(res.body);
-          let student_id,
+          var student_id,
             student_name,
             quiz_1,
             quiz_2,
@@ -49,29 +55,61 @@ let grade_scraper = async function (cookie, coid, cb) {
             grade;
 
           const $ = cheerio.load(res.body);
-          let c = $("div.col-xs-4").text();
-          //console.log(`----- ${c}`);
-          if (c.length <= 45) {
-            grade_points = $("p").children().eq(11).text();
-            grade = $("p").children().eq(14).text();
-            student_id = " ";
-            student_name = " ";
-            quiz_1 = " ";
-            quiz_2 = " ";
-            midsem = " ";
-            ta = " ";
-            endsem = " ";
-          } else {
-            student_id = $("p").children().eq(2).text();
-            student_name = $("p").children().eq(5).text();
-            quiz_1 = $("p").children().eq(8).text();
-            quiz_2 = $("p").children().eq(11).text();
-            midsem = $("p").children().eq(14).text();
-            ta = $("p").children().eq(17).text();
-            endsem = $("p").children().eq(20).text();
-            grade_points = $("p").children().eq(23).text();
-            grade = $("p").children().eq(26).text();
-          }
+
+          $("div.text-left").each((i, ele) => {
+            // console.log(`--- ${coid} ---`);
+
+            $(ele)
+              .children()
+              .each((j, e) => {
+                // console.log(j);
+                
+                let field = $(e).find("b").text().toLowerCase();
+                let value = $(e)
+                  .find("font[style='font-size: 100%; color: black']")
+                  .text()
+                  .trim();
+
+                // console.log(`${field} --> ${value}`);
+
+                if (field == "qz-1" || field == "quiz-1") quiz_1 = value;
+                if (field == "qz-2" || field == "quiz-2") quiz_2 = value;
+                if (field == "midsem" || field == "mid sem") midsem = value;
+                if (field == "ta") ta = value;
+                if (field == "endsem" || field == "end sem") endsem = value;
+                if (field == "grade points" || field == "gradepoints")
+                  grade_points = value;
+                if (field == "grade") grade = value;
+
+                // console.log(z);
+
+                // console.log(`${j} --> ${$(e).text()}`);
+              });
+          });
+
+          // let c = $("div.col-xs-4").text();
+          // //console.log(`----- ${c}`);
+          // if (c.length <= 45) {
+          //   grade_points = $("p").children().eq(11).text();
+          //   grade = $("p").children().eq(14).text();
+          //   student_id = " ";
+          //   student_name = " ";
+          //   quiz_1 = " ";
+          //   quiz_2 = " ";
+          //   midsem = " ";
+          //   ta = " ";
+          //   endsem = " ";
+          // } else {
+          //   student_id = $("p").children().eq(2).text();
+          //   student_name = $("p").children().eq(5).text();
+          //   quiz_1 = $("p").children().eq(8).text();
+          //   quiz_2 = $("p").children().eq(11).text();
+          //   midsem = $("p").children().eq(14).text();
+          //   ta = $("p").children().eq(17).text();
+          //   endsem = $("p").children().eq(20).text();
+          //   grade_points = $("p").children().eq(23).text();
+          //   grade = $("p").children().eq(26).text();
+          // }
           data = {
             student_id,
             student_name,
@@ -82,7 +120,7 @@ let grade_scraper = async function (cookie, coid, cb) {
             endsem,
             grade_points,
             grade,
-          }; 
+          };
           // console.log(data);
           cb(data);
         })

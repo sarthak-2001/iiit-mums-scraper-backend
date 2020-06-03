@@ -50,10 +50,11 @@ let gradeScraper = async function (uid, pwd, semesterCur) {
       }
     });
 
-  // console.log(subjects);
+  console.log(subjects);
 
   for (let index = 0; index < subjects.length; index++) {
-    grade_scraper(cookie, subjects[index].coid, (result) => {
+    // await sleep(500)
+   await grade_scraper(cookie, subjects[index].coid, (result) => {
       // console.log(result);
       data.grades.push({
         semester: subjects[index].sem,
@@ -69,14 +70,16 @@ let gradeScraper = async function (uid, pwd, semesterCur) {
         grade: result.grade,
       });
     });
-    await sleep(1500);
+    // await sleep(2000);
     // console.log(data);
   }
+  // console.log(data);
+  
   return data;
   
 };
 
 
 module.exports = { gradeScraper };
-//gradeScraper("b418045", "kitu@2001", "1");
+// gradeScraper("b418045", "kitu@2001", "1");
 

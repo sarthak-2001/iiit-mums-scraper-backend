@@ -1,7 +1,7 @@
 const express = require("express");
 const loginRouter = require("./mums/routes/login");
 const noticeRouter = require("./mums/routes/notices");
-const gradesRouter = require("./mums/routes/view_grades");
+const gradesRouter = require("./mums/routes/grades");
 const studentRouter = require("./mums/routes/stuSearch");
 const studentImageRouter = require("./mums/routes/stuImage");
 const facultyRouter = require("./mums/routes/facSearch");
@@ -27,6 +27,7 @@ app.use(facultyImageRouter);
 app.use(intraRouter);
 app.use(bookRouter);
 app.use(attendanceRouter);
+app.use(gradesRouter);
 
 const PORT = process.env.PORT || 3001;
 
