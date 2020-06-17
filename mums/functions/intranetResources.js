@@ -1,169 +1,174 @@
 const rp = require("request-promise");
 const { login } = require("./login");
 const cheerio = require("cheerio");
-const db = require("../firebase/firebaseInit");
 const { intraDataScraper } = require("./intradata");
+const intraNoticeMongo = require("../models/intranet");
+// require("../db/mongoose");
 
 let intraDBCreator = async function (uid, pwd) {
-  let intraRef = db.collection("intranet");
+	let user = await login(uid, pwd);
+	let cookie = user.cookie;
 
-  let user = await login(uid, pwd);
-  let cookie = user.cookie;
+	let option = {
+		url:
+			"https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
+		simple: false,
+		resolveWithFullResponse: true,
+		headers: {
+			Cookie: cookie,
+			Referer:
+				"https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php?role=Common",
+		},
+	};
 
-  let option = {
-    url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
-    simple: false,
-    resolveWithFullResponse: true,
-    headers: {
-      Cookie: cookie,
-      Referer:
-        "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php?role=Common",
-    },
-  };
+	let res = await rp.get(option);
+	const $ = cheerio.load(res.body);
 
-  let res = await rp.get(option);
-  const $ = cheerio.load(res.body);
+	$("tbody")
+		.children()
+		.each((i, ele) => {
+			const date = $(ele)
+				.find("td")
+				.eq(0)
+				.text()
+				.replace(/^\s+|\s+$/g, "");
 
-  $("tbody")
-    .children()
-    .each((i, ele) => {
-      // if(i==2)
-      //   {
-      //     return false;
-      //   }
-      // console.log(`${i}\n`);
+			const title = $(ele)
+				.find("td")
+				.eq(1)
+				.text()
+				.replace(/^\s+|\s+$/g, "");
 
-      const date = $(ele)
-        .find("td")
-        .eq(0)
-        .text()
-        .replace(/^\s+|\s+$/g, "");
+			const by = $(ele)
+				.find("td")
+				.eq(2)
+				.text()
+				.replace(/^\s+|\s+$/g, "");
 
-      const title = $(ele)
-        .find("td")
-        .eq(1)
-        .text()
-        .replace(/^\s+|\s+$/g, "");
+			const id_link = $(ele).find("a").attr("href");
 
-      const by = $(ele)
-        .find("td")
-        .eq(2)
-        .text()
-        .replace(/^\s+|\s+$/g, "");
+			const doc_id = $(ele).find("a").attr("href").slice(17);
+			console.log(doc_id);
 
-      const id_link = $(ele).find("a").attr("href");
-
-      const doc_id = $(ele).find("a").attr("href").slice(17);
-      console.log(doc_id);
-      
-
-      intraDataScraper(cookie, doc_id)
-        .then((contents) => {
-          const content = contents.content;
-          const attachment = contents.attachmentLink;
-          // console.log(content);
-          // console.log(attachment);
-
-          intraRef.doc(doc_id).set({
-            date: date,
-            title: title,
-            by: by,
-
-            doc_id: parseInt(doc_id),
-            id_link: id_link,
-            content: content,
-            attachment: attachment,
-          });
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    });
+			intraDataScraper(cookie, doc_id)
+				.then(async (contents) => {
+					const content = contents.content;
+					const attachment = contents.attachmentLink;
+					// console.log(content);
+					// console.log(attachment);
+					await intraNoticeMongo.updateOne(
+						{ id: parseInt(doc_id) },
+						{
+							$set: {
+								date: date,
+								id_link: id_link,
+								posted_by: by,
+								title: title,
+								content: content,
+								attachment: attachment,
+							},
+						},
+						{ upsert: true }
+					);
+				})
+				.catch((e) => {
+					console.log(e);
+				});
+		});
 };
 
 let intraUpdater = async function (uid, pwd) {
-  try {
-    let intraRef = db.collection("intranet");
-    intraFromDB = await intraRef.orderBy("doc_id", "desc").limit(1).get();
-    let lastNoticeID;
-    for (intraNoticeFromDB of intraFromDB.docs) lastNoticeID = intraNoticeFromDB.id;
+	try {
+		// let intraRef = db.collection("intranet");
+		// intraFromDB = await intraRef.orderBy("doc_id", "desc").limit(1).get();
+		// let lastNoticeID;
+		// for (intraNoticeFromDB of intraFromDB.docs) lastNoticeID = intraNoticeFromDB.id;
 
-    console.log(lastNoticeID);
-    
-    let user = await login(uid, pwd);
-    let cookie = user.cookie;
+		let notice = await intraNoticeMongo.find({}).sort({ id: -1 }).limit(1);
 
-    let option = {
-      url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
-      simple: false,
-      resolveWithFullResponse: true,
-      headers: {
-        Cookie: cookie,
-        Referer:
-          "https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php?role=Common",
-      },
-    };
+		lastNoticeID = notice[0].id;
+		console.log(lastNoticeID);
 
-    let res = await rp.get(option);
-    const $ = cheerio.load(res.body);
+		let user = await login(uid, pwd);
+		let cookie = user.cookie;
 
-    $("tbody")
-      .children()
-      .each((i, ele) => {
-        console.log(`${i}\n`);
+		let option = {
+			url:
+				"https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
+			simple: false,
+			resolveWithFullResponse: true,
+			headers: {
+				Cookie: cookie,
+				Referer:
+					"https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/aisMenu.php?role=Common",
+			},
+		};
 
-        const date = $(ele)
-          .find("td")
-          .eq(0)
-          .text()
-          .replace(/^\s+|\s+$/g, "");
+		let res = await rp.get(option);
+		const $ = cheerio.load(res.body);
 
-        const title = $(ele)
-          .find("td")
-          .eq(1)
-          .text()
-          .replace(/^\s+|\s+$/g, "");
+		$("tbody")
+			.children()
+			.each((i, ele) => {
+				console.log(`${i}\n`);
 
-        const by = $(ele)
-          .find("td")
-          .eq(2)
-          .text()
-          .replace(/^\s+|\s+$/g, "");
+				const date = $(ele)
+					.find("td")
+					.eq(0)
+					.text()
+					.replace(/^\s+|\s+$/g, "");
 
-        const id_link = $(ele).find("a").attr("href");
+				const title = $(ele)
+					.find("td")
+					.eq(1)
+					.text()
+					.replace(/^\s+|\s+$/g, "");
 
-        const doc_id = $(ele).find("a").attr("href").slice(17);
-        if (doc_id <= lastNoticeID) {
-          console.log("done");
+				const by = $(ele)
+					.find("td")
+					.eq(2)
+					.text()
+					.replace(/^\s+|\s+$/g, "");
 
-          return false;
-        }
+				const id_link = $(ele).find("a").attr("href");
 
-        intraDataScraper(cookie, doc_id)
-          .then((contents) => {
-            const content = contents.content;
-            const attachment = contents.attachmentLink;
+				const doc_id = $(ele).find("a").attr("href").slice(17);
+				if (doc_id <= lastNoticeID) {
+					console.log("done");
 
-            intraRef.doc(doc_id).set({
-              date: date,
-              title: title,
-              by: by,
+					return false;
+				} else {
+					intraDataScraper(cookie, doc_id)
+						.then(async (contents) => {
+							const content = contents.content;
+							const attachment = contents.attachmentLink;
+							await intraNoticeMongo.updateOne(
+								{ id: parseInt(doc_id) },
+								{
+									$set: {
+										date: date,
+										id_link: id_link,
+										posted_by: by,
+										title: title,
+										content: content,
+										attachment: attachment,
+									},
+								},
+								{ upsert: true }
+							);
+							console.log("Send notification here");
+						})
+						.catch((e) => {
+							console.log(e);
+						});
+				}
+			});
 
-              doc_id: doc_id,
-              id_link: id_link,
-              content: content,
-              attachment: attachment,
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      });
-
-    return "done";
-  } catch (e) {
-    console.log(e);
-  }
+		return "done";
+	} catch (e) {
+		console.log(e);
+	}
 };
 
-module.exports={intraUpdater}
+
+module.exports = { intraUpdater };
