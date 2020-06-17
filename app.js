@@ -1,4 +1,6 @@
 const express = require("express");
+require("../db/mongoose");
+
 const loginRouter = require("./mums/routes/login");
 const noticeRouter = require("./mums/routes/notices");
 const gradesRouter = require("./mums/routes/grades");
