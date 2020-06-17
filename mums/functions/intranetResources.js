@@ -3,7 +3,8 @@ const { login } = require("./login");
 const cheerio = require("cheerio");
 const { intraDataScraper } = require("./intradata");
 const intraNoticeMongo = require("../models/intranet");
-// require("../db/mongoose");
+const intraNoticeLock = require("../models/intranetLock");
+require("../db/mongoose");
 
 let intraDBCreator = async function (uid, pwd) {
 	let user = await login(uid, pwd);
@@ -79,11 +80,6 @@ let intraDBCreator = async function (uid, pwd) {
 
 let intraUpdater = async function (uid, pwd) {
 	try {
-		// let intraRef = db.collection("intranet");
-		// intraFromDB = await intraRef.orderBy("doc_id", "desc").limit(1).get();
-		// let lastNoticeID;
-		// for (intraNoticeFromDB of intraFromDB.docs) lastNoticeID = intraNoticeFromDB.id;
-
 		let notice = await intraNoticeMongo.find({}).sort({ id: -1 }).limit(1);
 
 		lastNoticeID = notice[0].id;
@@ -91,7 +87,11 @@ let intraUpdater = async function (uid, pwd) {
 
 		let user = await login(uid, pwd);
 		let cookie = user.cookie;
-
+		await intraNoticeLock.updateOne(
+			{ name: "IntraNoticelock" },
+			{ $set: { global_lock: true } },
+			{ upsert: true }
+		);
 		let option = {
 			url:
 				"https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
@@ -167,8 +167,14 @@ let intraUpdater = async function (uid, pwd) {
 		return "done";
 	} catch (e) {
 		console.log(e);
+	} finally {
+		await intraNoticeLock.updateOne(
+			{ name: "IntraNoticelock" },
+			{ $set: { global_lock: false } },
+			{ upsert: true }
+		);
 	}
 };
-
+intraUpdater("b418045", "kitu@2001");
 
 module.exports = { intraUpdater };

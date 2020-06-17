@@ -4,7 +4,7 @@ const { noticedataScraper } = require("./noticedata");
 const cheerio = require("cheerio");
 const noticeMongo = require("../models/notice");
 const noticeLock = require("../models/noticeLock");
-require("../db/mongoose");
+// require("../db/mongoose");
 
 let noticeDBcreator = async function (uid, pwd) {
 	let user = await login(uid, pwd);
