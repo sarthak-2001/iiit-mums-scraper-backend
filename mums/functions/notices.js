@@ -3,10 +3,10 @@ const { login } = require("./login");
 const { noticedataScraper } = require("./noticedata");
 const cheerio = require("cheerio");
 const noticeMongo = require("../models/notice");
-// require("../db/mongoose");
+const noticeLock = require("../models/noticeLock");
+require("../db/mongoose");
 
 let noticeDBcreator = async function (uid, pwd) {
-
 	let user = await login(uid, pwd);
 	let cookie = user.cookie;
 
@@ -75,8 +75,6 @@ let noticeDBcreator = async function (uid, pwd) {
 						},
 						{ upsert: true }
 					);
-
-				
 				})
 				.catch((e) => {
 					console.log(e);
@@ -86,11 +84,12 @@ let noticeDBcreator = async function (uid, pwd) {
 
 let noticeUpdater = async function (uid, pwd) {
 	try {
-		
-    let notice =await  noticeMongo.find({}).sort({id:-1}).limit(1);
-    console.log(notice[0].id);
-    lastNoticeID = notice[0].id;
-    
+		let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(1);
+		console.log(notice[0].id);
+		lastNoticeID = notice[0].id;
+
+		console.log(lastNoticeID);
+
 		let user = await login(uid, pwd);
 		let cookie = user.cookie;
 
@@ -107,7 +106,11 @@ let noticeUpdater = async function (uid, pwd) {
 
 		let res = await rp.get(option);
 		const $ = cheerio.load(res.body);
-
+		await noticeLock.updateOne(
+			{ name: "Noticelock" },
+			{ $set: { global_lock: true } },
+			{ upsert: true }
+		);
 		$("tbody")
 			.children()
 			.each((i, ele) => {
@@ -143,34 +146,33 @@ let noticeUpdater = async function (uid, pwd) {
 
 				if (doc_id <= lastNoticeID) {
 					console.log("done");
+					//  await noticeLock.updateOne({name:'Noticelock'},{global_lock:false});
+
 					return false;
 				} else {
 					noticedataScraper(cookie, doc_id)
-						.then(async(contents) => {
+						.then(async (contents) => {
 							const content = contents.content;
-              const attachment = contents.attachmentLink;
-              
-              await noticeMongo.updateOne(
-                { id: parseInt(doc_id) },
-                {
-                  $set: {
-                    attention: attention,
-                    date: date,
-                    id_link: id_link,
-                    posted_by: posted_by,
-                    title: title,
-                    content: content,
-                    attachment: attachment,
-                  },
-                },
-                { upsert: true }
-              );
-						
-              
-              console.log('Send notification here');
-              
+							const attachment = contents.attachmentLink;
 
-            })
+							await noticeMongo.updateOne(
+								{ id: parseInt(doc_id) },
+								{
+									$set: {
+										attention: attention,
+										date: date,
+										id_link: id_link,
+										posted_by: posted_by,
+										title: title,
+										content: content,
+										attachment: attachment,
+									},
+								},
+								{ upsert: true }
+							);
+
+							console.log("Send notification here");
+						})
 						.catch((e) => {
 							console.log(e);
 						});
@@ -180,9 +182,16 @@ let noticeUpdater = async function (uid, pwd) {
 		return "done";
 	} catch (e) {
 		console.log(e);
+	} finally {
+		await noticeLock.updateOne(
+			{ name: "Noticelock" },
+			{ $set: { global_lock: false } },
+			{ upsert: true }
+		);
 	}
 };
 
-
+noticeUpdater("b418045", "kitu@2001");
+// noticeDBcreator("b418045", "kitu@2001");
 
 module.exports = { noticeUpdater };

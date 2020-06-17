@@ -1,7 +1,6 @@
 const rp = require("request-promise");
 const { login } = require("./login");
 const cheerio = require("cheerio");
-const db = require("../firebase/firebaseInit");
 
 let noticedataScraper = async function (cookie, id) {
   try {
