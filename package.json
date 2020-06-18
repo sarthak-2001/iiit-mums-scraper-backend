@@ -14,10 +14,12 @@
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
     "firebase": "^7.14.5",
+    "http": "0.0.1-security",
     "mongoose": "^5.9.19",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
-    "set-cookie-parser": "^2.4.5"
+    "set-cookie-parser": "^2.4.5",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4",
