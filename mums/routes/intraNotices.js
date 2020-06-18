@@ -1,16 +1,14 @@
 const express = require("express");
-const { intraUpdater } = require("../functions/intranetResources");
-
+const intra_middleware = require('../middlewares/intraNotices')
+const intraModel  =  require('../models/intranet')
 const router = new express.Router();
 
-router.post("/intra", async (req, res) => {
-  let notices = await intraUpdater(req.body.uid, req.body.pwd);
+router.post("/intra", intra_middleware,async (req, res) => {
+  let notices = await intraModel.find({}).sort({id:-1});
 
   if (!notices) {
     res.status(500).json({ msg: "ERROR" });
-  } else if (notices == "error") {
-    res.status(400).json({ msg: "wrong user id" });
-  } else res.status(200).json({ msg: "success" });
+  }else res.status(200).json(notices);
 });
 
 module.exports = router;

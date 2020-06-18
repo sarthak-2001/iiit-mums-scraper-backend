@@ -80,6 +80,11 @@ let intraDBCreator = async function (uid, pwd) {
 
 let intraUpdater = async function (uid, pwd) {
 	try {
+		await intraNoticeLock.updateOne(
+			{ name: "IntraNoticelock" },
+			{ $set: { global_lock: true } },
+			{ upsert: true }
+		);
 		let notice = await intraNoticeMongo.find({}).sort({ id: -1 }).limit(1);
 
 		lastNoticeID = notice[0].id;
@@ -87,11 +92,7 @@ let intraUpdater = async function (uid, pwd) {
 
 		let user = await login(uid, pwd);
 		let cookie = user.cookie;
-		await intraNoticeLock.updateOne(
-			{ name: "IntraNoticelock" },
-			{ $set: { global_lock: true } },
-			{ upsert: true }
-		);
+		
 		let option = {
 			url:
 				"https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/intraRes/docList.php",
