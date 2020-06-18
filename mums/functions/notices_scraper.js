@@ -4,9 +4,12 @@ const { noticedataScraper } = require("./noticedata");
 const cheerio = require("cheerio");
 const noticeMongo = require("../models/notice");
 const noticeLock = require("../models/noticeLock");
-// require("../db/mongoose");
+require("../db/mongoose");
 
 let noticeDBcreator = async function (uid, pwd) {
+
+	console.log('notice scraper triggered');
+	
 	let user = await login(uid, pwd);
 	let cookie = user.cookie;
 
@@ -83,7 +86,15 @@ let noticeDBcreator = async function (uid, pwd) {
 };
 
 let noticeUpdater = async function (uid, pwd) {
+
+	console.log('notice scraper triggered');
+
 	try {
+		await noticeLock.updateOne(
+			{ name: "Noticelock" },
+			{ $set: { global_lock: true } },
+			{ upsert: true }
+		);
 		let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(1);
 		console.log(notice[0].id);
 		lastNoticeID = notice[0].id;
@@ -92,6 +103,8 @@ let noticeUpdater = async function (uid, pwd) {
 
 		let user = await login(uid, pwd);
 		let cookie = user.cookie;
+		console.log(user.isValid);
+		
 
 		let option = {
 			url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
@@ -106,11 +119,7 @@ let noticeUpdater = async function (uid, pwd) {
 
 		let res = await rp.get(option);
 		const $ = cheerio.load(res.body);
-		await noticeLock.updateOne(
-			{ name: "Noticelock" },
-			{ $set: { global_lock: true } },
-			{ upsert: true }
-		);
+		
 		$("tbody")
 			.children()
 			.each((i, ele) => {
@@ -191,7 +200,7 @@ let noticeUpdater = async function (uid, pwd) {
 	}
 };
 
-noticeUpdater("b418045", "kitu@2001");
+// noticeUpdater("b418045", "kitu@2001");
 // noticeDBcreator("b418045", "kitu@2001");
 
 module.exports = { noticeUpdater };

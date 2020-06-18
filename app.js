@@ -1,5 +1,5 @@
 const express = require("express");
-require("../db/mongoose");
+require("./mums/db/mongoose");
 
 const loginRouter = require("./mums/routes/login");
 const noticeRouter = require("./mums/routes/notices");
@@ -12,7 +12,6 @@ const facultyImageRouter = require("./mums/routes/facImage");
 const intraRouter = require("./mums/routes/intraNotices");
 const bookRouter = require("./mums/routes/booksearch");
 const attendanceRouter = require("./mums/routes/attendance");
-
 
 const app = express();
 

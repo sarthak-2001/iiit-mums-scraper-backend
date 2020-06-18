@@ -175,6 +175,6 @@ let intraUpdater = async function (uid, pwd) {
 		);
 	}
 };
-intraUpdater("b418045", "kitu@2001");
+// intraUpdater("b418045", "kitu@2001");
 
 module.exports = { intraUpdater };
