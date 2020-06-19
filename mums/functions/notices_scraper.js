@@ -8,7 +8,8 @@ require("../db/mongoose");
 
 let noticeDBcreator = async function (uid, pwd) {
 	console.log("notice scraper triggered");
-
+	console.log(`uid: ${uid}, pwd:${pwd}`);
+	
 	let user = await login(uid, pwd);
 	let cookie = user.cookie;
 
@@ -214,4 +215,4 @@ let noticeUpdater = async function (uid, pwd, io) {
 // noticeUpdater("b418045", "kitu@2001");
 // noticeDBcreator("b418045", "kitu@2001");
 
-module.exports = { noticeUpdater };
+module.exports = { noticeUpdater,noticeDBcreator };

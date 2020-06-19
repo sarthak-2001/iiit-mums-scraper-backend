@@ -178,4 +178,4 @@ let intraUpdater = async function (uid, pwd) {
 };
 // intraUpdater("b418045", "kitu@2001");
 
-module.exports = { intraUpdater };
+module.exports = { intraUpdater ,intraDBCreator};
