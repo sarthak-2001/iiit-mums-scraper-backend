@@ -107,8 +107,7 @@ let noticeUpdater = async function (uid, pwd, io) {
 
 			console.log(lastNoticeID);
 
-			// let user = await login(uid, pwd);
-			let user = await login("b418045", "kitu@2001");
+			let user = await login(uid, pwd);
 			let cookie = user.cookie;
 			console.log(user.isValid);
 

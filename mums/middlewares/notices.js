@@ -5,9 +5,7 @@ const notice_middleware = async (req, res, next) => {
 	try {
 		let lock = await noticeLock.findOne({});
 		if (lock.global_lock == false) {
-            
-            
-			noticeUpdater.noticeUpdater(req.body.uid, req.body.pwd,req.io);
+			noticeUpdater(req.body.uid, req.body.pwd, req.io.sockets);
 		}
 		next();
 	} catch (e) {
