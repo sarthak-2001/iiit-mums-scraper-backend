@@ -1,5 +1,5 @@
 const noticeLock = require("../models/noticeLock");
-const noticeUpdater = require("../functions/notices_scraper");
+const {noticeUpdater} = require("../functions/notices_scraper");
 
 const notice_middleware = async (req, res, next) => {
 	try {
