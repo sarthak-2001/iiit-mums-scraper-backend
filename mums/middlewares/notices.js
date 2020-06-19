@@ -7,7 +7,7 @@ const notice_middleware = async (req, res, next) => {
 		if (lock.global_lock == false) {
             
             
-			noticeUpdater.noticeUpdater(req.body.uid, req.body.pwd);
+			noticeUpdater.noticeUpdater(req.body.uid, req.body.pwd,req.io);
 		}
 		next();
 	} catch (e) {
