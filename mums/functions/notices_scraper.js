@@ -95,6 +95,8 @@ let noticeUpdater = async function (uid, pwd, io) {
 
 	io.on("connection", async function (socket) {
 		console.log("notice_scraper connected");
+		io.emit("u", "doc_id11");
+
 
 		try {
 			await noticeLock.updateOne(
