@@ -9,7 +9,7 @@ require("../db/mongoose");
 let noticeDBcreator = async function (uid, pwd) {
 	console.log("notice scraper triggered");
 	console.log(`uid: ${uid}, pwd:${pwd}`);
-	
+
 	let user = await login(uid, pwd);
 	let cookie = user.cookie;
 
@@ -85,136 +85,117 @@ let noticeDBcreator = async function (uid, pwd) {
 		});
 };
 
-let noticeUpdater = async function (uid, pwd, io) {
+let noticeUpdater = async function (uid, pwd) {
 	console.log("notice scraper triggered");
-	// io.on('connection', function (socket) {
-	//     console.log('notice_scraper connected');
-	//         io.emit("update11", "fire something");
+	
 
-	//     });
+	try {
+		await noticeLock.updateOne(
+			{ name: "Noticelock" },
+			{ $set: { global_lock: true } },
+			{ upsert: true }
+		);
+		let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(1);
+		console.log(notice[0].id);
+		lastNoticeID = notice[0].id;
 
-	io.on("connection", async function (socket) {
-		console.log("notice_scraper connected");
-		io.emit("u", "doc_id11");
+		console.log(lastNoticeID);
 
+		let user = await login(uid, pwd);
+		let cookie = user.cookie;
+		console.log(user.isValid);
 
-		try {
-			await noticeLock.updateOne(
-				{ name: "Noticelock" },
-				{ $set: { global_lock: true } },
-				{ upsert: true }
-			);
-			let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(1);
-			console.log(notice[0].id);
-			lastNoticeID = notice[0].id;
+		let option = {
+			url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
+			simple: false,
+			resolveWithFullResponse: true,
+			headers: {
+				Cookie: cookie,
+				Referer:
+					"https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/?w=766&h=749",
+			},
+		};
 
-			console.log(lastNoticeID);
+		let res = await rp.get(option);
+		const $ = cheerio.load(res.body);
 
-			let user = await login(uid, pwd);
-			let cookie = user.cookie;
-			console.log(user.isValid);
+		$("tbody")
+			.children()
+			.each((i, ele) => {
+				console.log(`${i}\n`);
 
-			let option = {
-				url:
-					"https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
-				simple: false,
-				resolveWithFullResponse: true,
-				headers: {
-					Cookie: cookie,
-					Referer:
-						"https://hib.iiit-bh.ac.in/m-ums-2.0/start/here/?w=766&h=749",
-				},
-			};
+				const date = $(ele)
+					.find("td")
+					.eq(1)
+					.text()
+					.replace(/^\s+|\s+$/g, "");
+				const full_heading = $(ele)
+					.find("td")
+					.eq(2)
+					.text()
+					.replace(/^\s+|\s+$/g, "");
+				const replaced_full_heading = full_heading
+					.split("--")[1]
+					.replace("Attention:", "---")
+					.replace("Posted by:", "---")
+					.toString();
 
-			let res = await rp.get(option);
-			const $ = cheerio.load(res.body);
+				const title = full_heading
+					.split("--")[0]
+					.replace(/^\s+|\s+$/g, "");
+				const attention = replaced_full_heading
+					.split("---")[1]
+					.replace(/^\s+|\s+$/g, "");
+				const posted_by = replaced_full_heading
+					.split("---")[2]
+					.replace(/^\s+|\s+$/g, "");
+				const id_link = $(ele).find("a").attr("href");
+				const doc_id = $(ele).find("a").attr("href").slice(17);
 
-			$("tbody")
-				.children()
-				.each((i, ele) => {
-					console.log(`${i}\n`);
+				if (doc_id <= lastNoticeID) {
+					console.log("done");
 
-					const date = $(ele)
-						.find("td")
-						.eq(1)
-						.text()
-						.replace(/^\s+|\s+$/g, "");
-					const full_heading = $(ele)
-						.find("td")
-						.eq(2)
-						.text()
-						.replace(/^\s+|\s+$/g, "");
-					const replaced_full_heading = full_heading
-						.split("--")[1]
-						.replace("Attention:", "---")
-						.replace("Posted by:", "---")
-						.toString();
+					return false;
+				} else {
+					noticedataScraper(cookie, doc_id)
+						.then(async (contents) => {
+							const content = contents.content;
+							const attachment = contents.attachmentLink;
 
-					const title = full_heading
-						.split("--")[0]
-						.replace(/^\s+|\s+$/g, "");
-					const attention = replaced_full_heading
-						.split("---")[1]
-						.replace(/^\s+|\s+$/g, "");
-					const posted_by = replaced_full_heading
-						.split("---")[2]
-						.replace(/^\s+|\s+$/g, "");
-					const id_link = $(ele).find("a").attr("href");
-					const doc_id = $(ele).find("a").attr("href").slice(17);
-
-					if (doc_id <= lastNoticeID) {
-						console.log("done");
-						//  await noticeLock.updateOne({name:'Noticelock'},{global_lock:false});
-
-						return false;
-					} else {
-						noticedataScraper(cookie, doc_id)
-							.then(async (contents) => {
-								const content = contents.content;
-								const attachment = contents.attachmentLink;
-
-								await noticeMongo.updateOne(
-									{ id: parseInt(doc_id) },
-									{
-										$set: {
-											attention: attention,
-											date: date,
-											id_link: id_link,
-											posted_by: posted_by,
-											title: title,
-											content: content,
-											attachment: attachment,
-										},
+							await noticeMongo.updateOne(
+								{ id: parseInt(doc_id) },
+								{
+									$set: {
+										attention: attention,
+										date: date,
+										id_link: id_link,
+										posted_by: posted_by,
+										title: title,
+										content: content,
+										attachment: attachment,
 									},
-									{ upsert: true }
-								);
+								},
+								{ upsert: true }
+							);
 
-								console.log("Send notification here");
-								// io.on("connection", function (socket) {
-								// 	console.log("notice_scraper connected");
-									io.emit("update11", doc_id);
-								// });
-							})
-							.catch((e) => {
-								console.log(e);
-							});
-					}
-				});
+							console.log("Send notification here");
+						})
+						.catch((e) => {
+							console.log(e);
+						});
+				}
+			});
 
-			return "done";
-		} catch (e) {
-			console.log(e);
-		} finally {
-			await noticeLock.updateOne(
-				{ name: "Noticelock" },
-				{ $set: { global_lock: false } },
-				{ upsert: true }
-			);
-		}
-	});
+		return "done";
+	} catch (e) {
+		console.log(e);
+	} finally {
+		await noticeLock.updateOne(
+			{ name: "Noticelock" },
+			{ $set: { global_lock: false } },
+			{ upsert: true }
+		);
+	}
 };
 
-// noticeUpdater("b418045", "kitu@2001");
-// noticeDBcreator("b418045", "kitu@2001");
-
-module.exports = { noticeUpdater,noticeDBcreator };
+module.exports = { noticeUpdater, noticeDBcreator };

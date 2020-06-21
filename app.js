@@ -17,28 +17,10 @@ const attendanceRouter = require("./mums/routes/attendance");
 const noticePopRouter = require("./mums/routes/noticePopulator")
 const intraPopulator = require('./mums/routes/intraPopulator')
 
-const delRouter = require('./mums/routes/del')
-
 const app = express();
-const server = require('http').Server(app);
 const PORT = process.env.PORT;
-console.log(PORT);
 
-const io = require('socket.io')(server);
-server.listen(PORT);
 
-app.use(function(req,res,next){
-    req.io = io;
-    next();
-});
-
-// io.sockets.on('connection', function (socket) {
-//     console.log('client connect');
-//     // socket.on('echo', function (data) {
-//     //     io.sockets.emit('message', data);
-//     // });
-    
-// });
 
 app.use(express.json());
 
@@ -57,7 +39,4 @@ app.use(bookRouter);
 app.use(attendanceRouter);
 app.use(gradesRouter);
 
-app.use(delRouter);
-
-
-// app.listen(PORT, () => console.log(`server on ${PORT}`));
+app.listen(PORT, () => console.log(`server on ${PORT}`));
