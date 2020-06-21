@@ -178,6 +178,32 @@ let noticeUpdater = async function (uid, pwd) {
 								{ upsert: true }
 							);
 
+							let notiOption = {
+								url:'https://fcm.googleapis.com/fcm/send',
+								simple:false,
+								resolveWithFullResponse: true,
+								headers: {
+									'Content-Type':'application/json',
+									'Authorization': `key=${process.env.FCM_TOKEN}`,
+								},
+								body:{
+									'notification':{
+										'body': `${title}`,
+										'title': 'New Notification'
+									  },
+									  'priority': 'high',
+									  'data':{
+										'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+										'id': '1',
+										'status': 'done'
+									  },
+									  'to':'/topics/all'
+
+								},
+								json:true,
+
+							}
+							await rp.post(notiOption);	
 							console.log("Send notification here");
 						})
 						.catch((e) => {
