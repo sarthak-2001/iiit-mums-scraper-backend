@@ -189,7 +189,7 @@ let noticeUpdater = async function (uid, pwd) {
 								body:{
 									'notification':{
 										'body': `${title}`,
-										'title': 'New Notification'
+										'title': 'New Notice'
 									  },
 									  'priority': 'high',
 									  'data':{
