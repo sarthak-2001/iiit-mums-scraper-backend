@@ -12,12 +12,11 @@ router.post("/attendance/:sem", async (req, res) => {
   } else {
       let c=0;
     for(let index = 0 ;index < attendance.Attendance.length ; index++){
-        //console.log(attendance.Attendance[index])
         if( attendance.Attendance[index].total_days )
         c++;
     } 
     if(c>=1) 
-    res.status(200).json({ msg: "success" })
+    res.status(200).json(attendance)
     else
     res.status(404).json({msg: "Data not found"})
   } 
