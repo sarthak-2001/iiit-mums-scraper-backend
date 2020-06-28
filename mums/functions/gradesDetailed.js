@@ -57,16 +57,16 @@ let gradeScraper = async function (uid, pwd, semesterCur) {
    await grade_scraper(cookie, subjects[index].coid, (result) => {
       // console.log(result);
       data.grades.push({
-        semester: subjects[index].sem,
+        semester: parseInt(subjects[index].sem),
         subject: subjects[index].subject,
-        credit: subjects[index].credit,
-        coid: subjects[index].coid,
-        quiz_1: result.quiz_1,
-        quiz_2: result.quiz_2,
-        midsem: result.midsem,
-        ta: result.ta,
-        endsem: result.endsem,
-        grade_points: result.grade_points,
+        credit: parseFloat(subjects[index].credit),
+        coid: parseInt(subjects[index].coid),
+        quiz_1: parseFloat(result.quiz_1),
+        quiz_2: parseFloat(result.quiz_2),
+        midsem: parseFloat(result.midsem),
+        ta:parseFloat (result.ta),
+        endsem: parseFloat(result.endsem),
+        grade_points: parseFloat(result.grade_points),
         grade: result.grade,
       });
     });
@@ -81,5 +81,4 @@ let gradeScraper = async function (uid, pwd, semesterCur) {
 
 
 module.exports = { gradeScraper };
-// gradeScraper("b418045", "kitu@2001", "1");
 
