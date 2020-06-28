@@ -10,7 +10,7 @@ router.post("/grades", async (req, res) => {
     res.status(500).json({ msg: "ERROR" });
   } else if (grades == "error") {
     res.status(400).json({ msg: "wrong user id" });
-  } else res.status(200).json({grades });
+  } else res.status(200).json(grades );
 });
 
 module.exports = router;

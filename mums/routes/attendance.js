@@ -3,8 +3,8 @@ const { attendanceScraper } = require("../functions/attendance");
 
 const router = new express.Router();
 
-router.post("/attendance/:sem", async (req, res) => {
-  let attendance = await attendanceScraper(req.body.uid, req.body.pwd ,req.params.sem );
+router.post("/attendance", async (req, res) => {
+  let attendance = await attendanceScraper(req.body.uid, req.body.pwd ,req.body.sem );
   if (!attendance) {
     res.status(500).json({ msg: "ERROR" });
   } else if (attendance == "error") {
