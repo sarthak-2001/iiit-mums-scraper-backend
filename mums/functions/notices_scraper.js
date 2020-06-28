@@ -152,7 +152,7 @@ let noticeUpdater = async function (uid, pwd) {
 				const id_link = $(ele).find("a").attr("href");
 				const doc_id = $(ele).find("a").attr("href").slice(17);
 
-				if (i>8) {
+				if (doc_id <= lastNoticeID) {
 					console.log("done");
 
 					return false;
