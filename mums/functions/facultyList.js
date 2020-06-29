@@ -30,11 +30,11 @@ let facultyList = async function (uid, pwd) {
   $("tbody")
     .children()
     .each((i, ele) => {
-      const id = $(ele)
+      const id =parseInt( $(ele)
         .find("td")
         .eq(0)
         .text()
-        .replace(/^\s+|\s+$/g, "");
+        .replace(/^\s+|\s+$/g, ""));
 
       const name = $(ele)
         .find("td")
