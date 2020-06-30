@@ -8,7 +8,7 @@ router.post("/login", async (req, res) => {
   if (!user) res.status(500).json({ msg: "ERROR" });
 
   if (user.isValid == false) {
-    res.status(400).json({ msg: "Inavlid ID or password" });
+    res.status(200).json({ msg: "Inavlid ID or password" });
   } else {
     res.status(200).json({ msg: "Welcome" });
   }
