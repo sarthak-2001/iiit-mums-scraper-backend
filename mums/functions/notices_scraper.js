@@ -87,7 +87,6 @@ let noticeDBcreator = async function (uid, pwd) {
 
 let noticeUpdater = async function (uid, pwd) {
 	console.log("notice scraper triggered");
-	
 
 	try {
 		await noticeLock.updateOne(
@@ -95,11 +94,19 @@ let noticeUpdater = async function (uid, pwd) {
 			{ $set: { global_lock: true } },
 			{ upsert: true }
 		);
-		let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(1);
-		console.log(notice[0].id);
-		lastNoticeID = notice[0].id;
+		let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(16);
+		let idArr = [];
+		// console.log(notice[0].id);
+		// lastNoticeID = notice[0].id;
+		for (let i = 0; i < 16; i++) {
+			idArr.push(notice[i].id);
+		}
 
-		console.log(lastNoticeID);
+		// console.log(idArr);
+
+		const lastNoticeID = Math.min(...idArr);
+
+		// console.log('last id '+lastNoticeID);
 
 		let user = await login(uid, pwd);
 		let cookie = user.cookie;
@@ -150,65 +157,70 @@ let noticeUpdater = async function (uid, pwd) {
 					.split("---")[2]
 					.replace(/^\s+|\s+$/g, "");
 				const id_link = $(ele).find("a").attr("href");
-				const doc_id = $(ele).find("a").attr("href").slice(17);
+				const doc_id = parseInt(
+					$(ele).find("a").attr("href").slice(17)
+				);
 
 				if (doc_id <= lastNoticeID) {
 					console.log("done");
 
 					return false;
 				} else {
-					noticedataScraper(cookie, doc_id)
-						.then(async (contents) => {
-							const content = contents.content;
-							const attachment = contents.attachmentLink;
+					if (idArr.includes(doc_id) == false) {
+						// console.log(`${doc_id} not there`);
 
-							await noticeMongo.updateOne(
-								{ id: parseInt(doc_id) },
-								{
-									$set: {
-										attention: attention,
-										date: date,
-										id_link: id_link,
-										posted_by: posted_by,
-										title: title,
-										content: content,
-										attachment: attachment,
+						noticedataScraper(cookie, doc_id)
+							.then(async (contents) => {
+								const content = contents.content;
+								const attachment = contents.attachmentLink;
+
+								await noticeMongo.updateOne(
+									{ id: parseInt(doc_id) },
+									{
+										$set: {
+											attention: attention,
+											date: date,
+											id_link: id_link,
+											posted_by: posted_by,
+											title: title,
+											content: content,
+											attachment: attachment,
+										},
 									},
-								},
-								{ upsert: true }
-							);
+									{ upsert: true }
+								);
 
-							let notiOption = {
-								url:'https://fcm.googleapis.com/fcm/send',
-								simple:false,
-								resolveWithFullResponse: true,
-								headers: {
-									'Content-Type':'application/json',
-									'Authorization': `key=${process.env.FCM_TOKEN}`,
-								},
-								body:{
-									'notification':{
-										'body': `${title}`,
-										'title': 'New Notice'
-									  },
-									  'priority': 'high',
-									  'data':{
-										'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-										'id': '1',
-										'status': 'done'
-									  },
-									  'to':'/topics/all'
-
-								},
-								json:true,
-
-							}
-							await rp.post(notiOption);	
-							console.log("Send notification here");
-						})
-						.catch((e) => {
-							console.log(e);
-						});
+								let notiOption = {
+									url: "https://fcm.googleapis.com/fcm/send",
+									simple: false,
+									resolveWithFullResponse: true,
+									headers: {
+										"Content-Type": "application/json",
+										Authorization: `key=${process.env.FCM_TOKEN}`,
+									},
+									body: {
+										notification: {
+											body: `${title}`,
+											title: "New Notice",
+										},
+										priority: "high",
+										data: {
+											click_action:
+												"FLUTTER_NOTIFICATION_CLICK",
+											id: "1",
+											status: "done",
+										},
+										to: "/topics/all",
+									},
+									json: true,
+								};
+								await rp.post(notiOption);
+								console.log("Send notification here");
+							})
+							.catch((e) => {
+								console.log(e);
+							});
+					}
 				}
 			});
 
