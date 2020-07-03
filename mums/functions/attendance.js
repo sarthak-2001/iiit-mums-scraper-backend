@@ -72,5 +72,4 @@ let attendanceScraper = async function (uid, pwd) {
 
 
 module.exports = { attendanceScraper };
-//attendanceScraper("b418018", "barbie17*",4);
 

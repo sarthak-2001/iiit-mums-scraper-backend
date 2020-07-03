@@ -110,8 +110,8 @@ let outsideNoticeUpdater = async function () {
 			.next()
 			// .children()
 			.each((i, ele) => {
-				console.log(`${i}\n`);
-				// if (i > 10) return false;
+				// console.log(`${i}\n`);
+				if (i > 10) return false;
 				// console.log($(ele).html());
 
 				const title = $(ele)
@@ -177,7 +177,7 @@ let outsideNoticeUpdater = async function () {
 									json: true,
 								};
 								await rp.post(notiOption);
-								console.log("Send notification here");   
+								console.log(`Send notification here - ${doc_id}`);   
 							})
 							.catch((e) => {
 								console.log(e);

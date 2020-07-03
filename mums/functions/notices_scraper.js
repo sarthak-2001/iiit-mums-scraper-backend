@@ -167,7 +167,7 @@ let noticeUpdater = async function (uid, pwd) {
 					return false;
 				} else {
 					if (idArr.includes(doc_id) == false) {
-						// console.log(`${doc_id} not there`);
+						console.log(`${doc_id} not there`);
 
 						noticedataScraper(cookie, doc_id)
 							.then(async (contents) => {
