@@ -87,29 +87,7 @@ let grade_scraper = async function (cookie, coid, cb) {
               });
           });
 
-          // let c = $("div.col-xs-4").text();
-          // //console.log(`----- ${c}`);
-          // if (c.length <= 45) {
-          //   grade_points = $("p").children().eq(11).text();
-          //   grade = $("p").children().eq(14).text();
-          //   student_id = " ";
-          //   student_name = " ";
-          //   quiz_1 = " ";
-          //   quiz_2 = " ";
-          //   midsem = " ";
-          //   ta = " ";
-          //   endsem = " ";
-          // } else {
-          //   student_id = $("p").children().eq(2).text();
-          //   student_name = $("p").children().eq(5).text();
-          //   quiz_1 = $("p").children().eq(8).text();
-          //   quiz_2 = $("p").children().eq(11).text();
-          //   midsem = $("p").children().eq(14).text();
-          //   ta = $("p").children().eq(17).text();
-          //   endsem = $("p").children().eq(20).text();
-          //   grade_points = $("p").children().eq(23).text();
-          //   grade = $("p").children().eq(26).text();
-          // }
+        
           data = {
             student_id,
             student_name,
