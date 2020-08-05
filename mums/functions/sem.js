@@ -36,10 +36,8 @@ let sgpaScraper = async function (uid, pwd) {
       .text()
       .replace(/^\s+|\s+$/g, "");
 
-    //   console.log(cgpa);
     let sgpa = mark_line.split(" ")[3].toString();
     let cgpa = mark_line.split(" ")[6];
-    if (sgpa == "CGPA:") break;
 
 
     if (i == 1) {
@@ -47,10 +45,25 @@ let sgpaScraper = async function (uid, pwd) {
         cgpa: cgpa,
       });
     }
-    data.sems.push({
-      sem: i,
-      sgpa: sgpa.slice(0,-1),
-    });
+
+    
+    if (sgpa == "CGPA:" && i<9) {
+      data.sems.push({
+        sem: i,
+        sgpa: 0.0
+      })
+    }
+    else{
+      data.sems.push({
+        sem: i,
+        sgpa: sgpa.slice(0,-1),
+      });
+    }
+
+
+    if(i>=8) break;
+    
+   
     
   }
 
