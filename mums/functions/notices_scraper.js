@@ -202,6 +202,8 @@ let noticeUpdater = async function (uid, pwd) {
 										notification: {
 											body: `${title}`,
 											title: "New Notice",
+											sound:"default"
+
 										},
 										priority: "high",
 										data: {

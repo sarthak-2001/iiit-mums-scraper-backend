@@ -164,6 +164,8 @@ let outsideNoticeUpdater = async function () {
 										notification: {
 											body: `${title}`,
 											title: "New Notice",
+											sound:"default"
+
 										},
 										priority: "high",
 										data: {
