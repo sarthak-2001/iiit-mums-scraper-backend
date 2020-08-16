@@ -17,6 +17,7 @@ const attendanceRouter = require("./mums/routes/attendance");
 const noticePopRouter = require("./mums/routes/noticePopulator");
 const intraPopulator = require("./mums/routes/intraPopulator");
 const noticeOutPopulator = require("./mums/routes/noticeOutsidePopulator");
+const nameRoute = require("./mums/routes/name");
 const semRouter = require('./mums/routes/sgpa');
 
 const app = express();
@@ -36,6 +37,7 @@ app.use(semRouter);
 app.use(facListRouter);
 app.use(facultyImageRouter);
 app.use(intraRouter);
+app.use(nameRoute);
 app.use(bookRouter);
 app.use(attendanceRouter);
 app.use(gradesRouter);
