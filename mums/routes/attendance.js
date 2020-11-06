@@ -10,12 +10,8 @@ router.post("/attendance", async (req, res) => {
   } else if (attendance == "error") {
     res.status(400).json({ msg: "wrong user id" });
   } else {
-      let c=0;
-    for(let index = 0 ;index < attendance.Attendance.length ; index++){
-        if( attendance.Attendance[index].total_days )
-        c++;
-    } 
-    if(c>=1) 
+    
+    if(attendance.Attendance.length!=0) 
     res.status(200).json(attendance)
     else
     res.status(404).json({msg: "Data not found"})

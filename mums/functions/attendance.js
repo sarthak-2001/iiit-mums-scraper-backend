@@ -65,7 +65,7 @@ let attendanceScraper = async function (uid, pwd) {
     await sleep(1500);
     }
   }
-  //console.log(data); 
+  // console.log(data); 
   return data;
   
 };
