@@ -1,4 +1,5 @@
 const express = require("express");
+const cron = require("node-cron");
 require("dotenv").config();
 
 require("./mums/db/mongoose");
@@ -19,6 +20,10 @@ const intraPopulator = require("./mums/routes/intraPopulator");
 const noticeOutPopulator = require("./mums/routes/noticeOutsidePopulator");
 const nameRoute = require("./mums/routes/name");
 const semRouter = require('./mums/routes/sgpa');
+
+const noticeLock = require("./mums/models/noticeLock");
+const { outsideNoticeUpdater } = require("./mums/functions/notice_outside");
+
 
 const app = express();
 const PORT = process.env.PORT;
@@ -42,5 +47,15 @@ app.use(bookRouter);
 app.use(attendanceRouter);
 app.use(gradesRouter);
 app.use(noticeOutPopulator);
+
+
+cron.schedule('*/5 * * * *',async () => {
+    console.log('cron job');
+    let lock = await noticeLock.findOne({});
+    if (lock.global_lock == false) {
+        outsideNoticeUpdater();
+        
+    }
+  });
 
 app.listen(PORT, () => console.log(`server on ${PORT}`));
