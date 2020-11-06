@@ -31,7 +31,7 @@ let outsideNoticeDBCreator = async function () {
 			// .children()
 			.each((i, ele) => {
 				console.log(`${i}\n`);
-				if (i > 10) return false;
+				// if (i > 10) return false;
 				// console.log($(ele).html());
 
 				const title = $(ele)
@@ -111,7 +111,7 @@ let outsideNoticeUpdater = async function () {
 			// .children()
 			.each((i, ele) => {
 				// console.log(`${i}\n`);
-				if (i > 10) return false;
+				if (i > 16) return false;
 				// console.log($(ele).html());
 
 				const title = $(ele)
