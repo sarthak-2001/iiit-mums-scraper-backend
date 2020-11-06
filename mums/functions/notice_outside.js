@@ -179,7 +179,7 @@ let outsideNoticeUpdater = async function () {
 									json: true,
 								};
 								await rp.post(notiOption);
-								console.log(`Send notification here - ${doc_id}`);   
+								console.log(`notification - ${doc_id}`);   
 							})
 							.catch((e) => {
 								console.log(e);

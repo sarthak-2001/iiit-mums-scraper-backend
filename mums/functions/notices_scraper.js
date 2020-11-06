@@ -96,13 +96,11 @@ let noticeUpdater = async function (uid, pwd) {
 		);
 		let notice = await noticeMongo.find({}).sort({ id: -1 }).limit(16);
 		let idArr = [];
-		// console.log(notice[0].id);
-		// lastNoticeID = notice[0].id;
+		
 		for (let i = 0; i < 16; i++) {
 			idArr.push(notice[i].id);
 		}
 
-		// console.log(idArr);
 
 		const lastNoticeID = Math.min(...idArr);
 
@@ -110,7 +108,7 @@ let noticeUpdater = async function (uid, pwd) {
 
 		let user = await login(uid, pwd);
 		let cookie = user.cookie;
-		console.log(user.isValid);
+		// console.log(user.isValid);
 
 		let option = {
 			url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.misc/nb/docList.php",
@@ -129,7 +127,7 @@ let noticeUpdater = async function (uid, pwd) {
 		$("tbody")
 			.children()
 			.each((i, ele) => {
-				console.log(`${i}\n`);
+				// console.log(`${i}\n`);
 
 				const date = $(ele)
 					.find("td")
@@ -217,7 +215,8 @@ let noticeUpdater = async function (uid, pwd) {
 									json: true,
 								};
 								await rp.post(notiOption);
-								console.log("Send notification here");
+								console.log(`notification - ${doc_id}`);   
+
 							})
 							.catch((e) => {
 								console.log(e);

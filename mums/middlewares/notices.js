@@ -9,9 +9,16 @@ function sleep(ms) {
 const notice_middleware = async (req, res, next) => {
 	try {
 		let lock = await noticeLock.findOne({});
+		if(lock==null){
+		await	noticeLock.updateOne(
+			{ name: "Noticelock" },
+			{ $set: { global_lock: false } },
+			{ upsert: true }
+		);
+		}
 		if (lock.global_lock == false) {
 			outsideNoticeUpdater();
-			await sleep(2000);
+			await sleep(5000);
 			noticeUpdater(req.body.uid, req.body.pwd);
 		}
 		next();
