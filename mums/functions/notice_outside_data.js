@@ -20,8 +20,7 @@ let noticedataOnlineScraper = async function (cookie, id) {
     const $ = cheerio.load(res.body);
 
     let content = $("div.well")
-      .text()
-      .replace(/^\s+|\s+$/g, "");
+      .html();
     let preAttachment = $("a.btn-danger").attr("href");
     let isAttach = false;
     let url;
