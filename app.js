@@ -19,11 +19,10 @@ const noticePopRouter = require("./mums/routes/noticePopulator");
 const intraPopulator = require("./mums/routes/intraPopulator");
 const noticeOutPopulator = require("./mums/routes/noticeOutsidePopulator");
 const nameRoute = require("./mums/routes/name");
-const semRouter = require('./mums/routes/sgpa');
-
+const semRouter = require("./mums/routes/sgpa");
+const testRouter = require("./mums/routes/test");
 const noticeLock = require("./mums/models/noticeLock");
 const { outsideNoticeUpdater } = require("./mums/functions/notice_outside");
-
 
 const app = express();
 const PORT = process.env.PORT;
@@ -47,15 +46,14 @@ app.use(bookRouter);
 app.use(attendanceRouter);
 app.use(gradesRouter);
 app.use(noticeOutPopulator);
+app.use(testRouter);
 
-
-cron.schedule('*/5 * * * *',async () => {
-    console.log('cron job');
-    let lock = await noticeLock.findOne({});
-    if (lock.global_lock == false) {
-        outsideNoticeUpdater();
-        
-    }
-  });
+cron.schedule("*/5 * * * *", async () => {
+	console.log("cron job");
+	let lock = await noticeLock.findOne({});
+	if (lock.global_lock == false) {
+		outsideNoticeUpdater();
+	}
+});
 
 app.listen(PORT, () => console.log(`server on ${PORT}`));
