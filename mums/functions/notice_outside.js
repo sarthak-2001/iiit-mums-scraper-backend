@@ -1,4 +1,3 @@
-//TODO : complete it
 
 const rp = require("request-promise");
 const { noticedataOnlineScraper } = require("./notice_outside_data");
@@ -9,7 +8,7 @@ const noticeLock = require("../models/noticeLock");
 require("../db/mongoose");
 
 let outsideNoticeDBCreator = async function () {
-	console.log("notice scraper triggered");
+	console.log("notice outside scraper triggered");
 	let cookie = "PHPSESSID=vuv23ie1cbkcsjtjjn6m84lrv5";
 	let option = {
 		url: "https://hib.iiit-bh.ac.in/m-ums-2.0/app.pub/nb/nbList1.php",

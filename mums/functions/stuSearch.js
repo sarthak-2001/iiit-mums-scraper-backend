@@ -52,6 +52,8 @@ let studentSearch = async function (uid, pwd, search) {
         link,
       });
     });
+  
+  data.student.sort((a,b) =>(a.id > b.id) ? 1 : ((b.id > a.id) ? -1 : 0));
   // console.log(data);
   return data;
 };
