@@ -48,7 +48,7 @@ let intraDBCreator = async function (uid, pwd) {
 
 			const id_link = $(ele).find("a").attr("href");
 
-			const doc_id = $(ele).find("a").attr("href").slice(17);
+			const doc_id = parseInt($(ele).find("a").attr("href").slice(17));
 			console.log(doc_id);
 
 			intraDataScraper(cookie, doc_id)
@@ -133,7 +133,7 @@ let intraUpdater = async function (uid, pwd) {
 
 				const id_link = $(ele).find("a").attr("href");
 
-				const doc_id = $(ele).find("a").attr("href").slice(17);
+				const doc_id = parseInt($(ele).find("a").attr("href").slice(17));
 				if (doc_id <= lastNoticeID) {
 					console.log("done");
 

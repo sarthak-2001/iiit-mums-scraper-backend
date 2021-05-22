@@ -43,7 +43,7 @@ let outsideNoticeDBCreator = async function () {
 					const attention = $(ele).find("b").eq(0).text();
 					const posted_by = $(ele).find("b").eq(1).text();
 					const date = $(ele).find("b").eq(2).text();
-					const doc_id = $(ele).find("a").attr("href").slice(17);
+					const doc_id = parseInt($(ele).find("a").attr("href").slice(17));
 					const id_link = $(ele).find("a").attr("href");
 
 					noticedataOnlineScraper(cookie, doc_id)
@@ -123,7 +123,7 @@ let outsideNoticeUpdater = async function () {
 					const attention = $(ele).find("b").eq(0).text();
 					const posted_by = $(ele).find("b").eq(1).text();
 					const date = $(ele).find("b").eq(2).text();
-					const doc_id = $(ele).find("a").attr("href").slice(17);
+					const doc_id = parseInt($(ele).find("a").attr("href").slice(17));
 					const id_link = $(ele).find("a").attr("href");
 
 					if (doc_id <= lastNoticeID) {

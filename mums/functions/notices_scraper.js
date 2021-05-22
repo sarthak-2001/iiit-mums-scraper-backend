@@ -130,7 +130,9 @@ let noticeUpdater = async function (uid, pwd) {
 				const attention = replaced_full_heading.split("---")[1].replace(/^\s+|\s+$/g, "");
 				const posted_by = replaced_full_heading.split("---")[2].replace(/^\s+|\s+$/g, "");
 				const id_link = $(ele).find("a").attr("href");
-				const doc_id = $(ele).find("a").attr("href").slice(17);
+				const doc_id =parseInt($(ele).find("a").attr("href").slice(17));
+
+
 
 				if (doc_id <= lastNoticeID) {
 					console.log("done");
